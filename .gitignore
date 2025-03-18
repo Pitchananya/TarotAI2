@@ -8,8 +8,7 @@ __pycache__/
 app.log
 
 # Data folder
-data/*.csv
-data/*.json
+
 
 # Environment files
 .env
