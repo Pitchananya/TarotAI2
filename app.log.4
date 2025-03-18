@@ -1,0 +1,88 @@
+2025-03-19 03:33:11,008 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_lovers.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,011 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/wheel_of_fortune.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,017 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/strength.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,019 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_chariot.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,026 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_hermit.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,030 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/justice.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,039 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_hanged_man.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,041 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/death.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,048 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_devil.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,050 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/temperance.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,051 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_tower.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,062 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_star.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,070 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_moon.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,077 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_sun.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,078 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/judgement.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:11,084 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:11] "[36mGET /static/images/the_world.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:14,956 - CRITICAL - app.py:513 - Unexpected Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+Traceback (most recent call last):
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-19 03:33:14,959 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:14] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2025-03-19 03:33:17,061 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:17] "GET /chat HTTP/1.1" 200 -
+2025-03-19 03:33:17,192 - CRITICAL - app.py:513 - Unexpected Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+Traceback (most recent call last):
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-19 03:33:17,195 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:17] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2025-03-19 03:33:19,397 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:19] "GET /select?message=ดูดวงทั่วไป&relationship_status= HTTP/1.1" 200 -
+2025-03-19 03:33:19,536 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:19] "[36mGET /static/images/inkcy_tarot.jpg HTTP/1.1[0m" 304 -
+2025-03-19 03:33:19,540 - CRITICAL - app.py:513 - Unexpected Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+Traceback (most recent call last):
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-19 03:33:19,544 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:19] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2025-03-19 03:33:22,966 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:22] "[36mGET /static/images/the_empress.png HTTP/1.1[0m" 304 -
+2025-03-19 03:33:23,776 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:23] "GET /loading?message=ดูดวงทั่วไป&relationship_status=in_relationship&card=The%20Empress&category=love_in_relationship HTTP/1.1" 200 -
+2025-03-19 03:33:23,921 - CRITICAL - app.py:513 - Unexpected Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+Traceback (most recent call last):
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\TUF\AppData\Roaming\Python\Python313\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-19 03:33:23,923 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:23] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2025-03-19 03:33:26,752 - ERROR - app.py:164 - GPT-2 ล้มเหลว: Input length of input_ids is 50, but `max_length` is set to 40. This can lead to unexpected behavior. You should consider increasing `max_length` or, better yet, setting `max_new_tokens`.
+2025-03-19 03:33:26,755 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:26] "GET /prediction?message=ดูดวงทั่วไป&relationship_status=in_relationship&card=The%20Empress&category=love_in_relationship HTTP/1.1" 200 -
+2025-03-19 03:33:26,912 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Mar/2025 03:33:26] "[36mGET /static/images/the_empress.png HTTP/1.1[0m" 304 -
