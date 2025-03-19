@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tarot AI - ระบบทำนายไพ่ทาโรต์อัจฉริยะที่ช่วยวิเคราะห์คำถามของคุณในทุกมิติของชีวิต">
+    <meta name="keywords" content="ไพ่ทาโรต์, ทำนายดวง, AI, ความรัก, การงาน, การเงิน, สุขภาพ">
+    <meta property="og:title" content="Tarot AI - ทำนายดวงด้วยไพ่ทาโรต์">
+    <meta property="og:description" content="ระบบทำนายไพ่ทาโรต์อัจฉริยะสำหรับทุกมิติของชีวิต">
+    <meta property="og:image" content="{{ url_for('static', filename='images/tarot_og_image.jpg') }}">
+    <meta property="og:url" content="https://yourwebsite.com">
+    <meta property="og:type" content="website">
+    <title>Tarot AI - {% if page == 'home' %}หน้าแรก{% elif page == 'chat' %}แชท{% elif page == 'select' %}เลือกไพ่{% elif page == 'loading' %}กำลังโหลด{% elif page == 'prediction' %}คำทำนาย{% elif page == 'article' %}บทความ{% endif %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Genty&family=Arial+Nova:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* CSS เดิมทั้งหมดจากโค้ดก่อนหน้า */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Nova', sans-serif;
+            color: #1A1A1A;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #F8F1F1 0%, #EDE0D4 100%);
+            overflow-x: hidden;
+            line-height: 1.6;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 1.2rem;
+            color: #4A2C2A;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(74, 44, 42, 0.9);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .navbar .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #F5E8C7;
+            text-shadow: 2px 2px 8px rgba(245, 232, 199, 0.5);
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        .navbar-nav a {
+            color: #F5E8C7;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: #D4A373;
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav a:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Home Page */
+        .home-body {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .floating-cards {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .floating-card {
+            position: absolute;
+            width: 120px;
+            height: 180px;
+            background: url('{{ url_for("static", filename="images/inkcy_tarot.jpg") }}') no-repeat center;
+            background-size: cover;
+            opacity: 0.6;
+            animation: floatAndRotate 20s infinite ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .floating-card:nth-child(1) { top: 5%; left: 5%; animation-delay: 0s; }
+        .floating-card:nth-child(2) { top: 20%; right: 5%; animation-delay: 5s; }
+        .floating-card:nth-child(3) { bottom: 15%; left: 10%; animation-delay: 10s; }
+        .floating-card:nth-child(4) { top: 40%; right: 15%; animation-delay: 2s; }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            z-index: 2;
+        }
+
+        .main-content h1 {
+            font-size: clamp(60px, 10vw, 100px);
+            color: #F4C7C3;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            animation: glowPulse 3s ease-in-out infinite alternate;
+            text-shadow: 0 0 15px rgba(244, 199, 195, 0.5);
+        }
+
+        .chat-input-container {
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 18px;
+            background: rgba(196, 213, 185, 0.9);
+            color: #2F2F2F;
+            border: 2px solid #D4A373;
+            border-radius: 25px 0 0 25px;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #F4C7C3;
+            transform: scale(1.03);
+        }
+
+        .start-button,
+        .random-button,
+        .category-card {
+            padding: 15px 30px;
+            background: linear-gradient(145deg, #F4C7C3 0%, #C8D5B9 100%);
+            color: #2F2F2F;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-button:hover,
+        .random-button:hover,
+        .category-card:hover {
+            background: linear-gradient(145deg, #C8D5B9 0%, #F4C7C3 100%);
+            transform: translateY(-3px);
+        }
+
+        .random-button {
+            margin-top: 25px;
+            border-radius: 25px;
+        }
+
+        .categories {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            justify-content: center;
+            max-width: 800px;
+        }
+
+        .category-card {
+            padding: 12px;
+            text-align: center;
+            border-radius: 15px;
+        }
+
+        .category-card:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .description {
+            margin-top: 30px;
+            color: #2F2F2F;
+            font-size: 18px;
+            max-width: 700px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+            background: rgba(200, 213, 185, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section {
+            margin-top: 30px;
+            color: #2F2F2F;
+            font-size: 16px;
+            max-width: 700px;
+            text-align: left;
+            background: rgba(244, 199, 195, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section h3 {
+            font-size: 22px;
+            color: #D4A373;
+            border-bottom: 1px solid #D4A373;
+            padding-bottom: 8px;
+        }
+
+        .links {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .links a {
+            color: #2F2F2F;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(200, 213, 185, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #F4C7C3;
+            background: #D4A373;
+            transform: translateY(-3px);
+        }
+
+        /* Chat Page */
+        .chat-body {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .chat-sidebar {
+            width: 280px;
+            background: rgba(200, 213, 185, 0.9);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #D4A373;
+            border-radius: 15px 0 0 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-sidebar h3 {
+            font-size: 18px;
+            color: #F4C7C3;
+            margin: 20px 0 15px;
+            border-bottom: 1px solid #F4C7C3;
+            padding-bottom: 8px;
+        }
+
+        .chat-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .chat-sidebar li {
+            padding: 12px;
+            cursor: pointer;
+            color: #2F2F2F;
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-sidebar li:hover {
+            background: #F4C7C3;
+            transform: translateX(8px);
+        }
+
+        .chat-sidebar .new-chat {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(145deg, #D4A373 0%, #C8D5B9 100%);
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-sidebar .new-chat:hover {
+            background: linear-gradient(145deg, #C8D5B9 0%, #D4A373 100%);
+            transform: translateY(-3px);
+        }
+
+        .chat-sidebar .delete-btn {
+            color: #D4A373;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .chat-sidebar .delete-btn:hover {
+            color: #F4C7C3;
+        }
+
+        .chat-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding-left: 40px;
+        }
+
+        .chat-content h1 {
+            font-size: clamp(24px, 5vw, 32px);
+            color: #D4A373;
+            margin-bottom: 25px;
+            text-align: center;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-container {
+            background: rgba(200, 213, 185, 0.3);
+            border: 2px solid #D4A373;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(244, 199, 195, 0.2);
+            border-radius: 15px;
+            border: 1px solid #C8D5B9;
+            max-height: 60vh;
+        }
+
+        .chat-message {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 15px;
+            max-width: 75%;
+            position: relative;
+            background: rgba(200, 213, 185, 0.5);
+            border: 1px solid #D4A373;
+            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-message.user {
+            background: linear-gradient(135deg, #F4C7C3 0%, #C8D5B9 100%);
+            color: #2F2F2F;
+            margin-left: auto;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-message.ai-prediction {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(212, 163, 115, 0.2);
+            padding: 15px;
+        }
+
+        .chat-message.ai-prediction img {
+            width: 120px;
+            height: auto;
+            margin-right: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .chat-message.ai-prediction img:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-message.ai-prediction .prediction-content {
+            flex-grow: 1;
+            color: #2F2F2F;
+        }
+
+        .chat-message.ai-explanation {
+            background: rgba(196, 213, 185, 0.7);
+            color: #2F2F2F;
+            font-style: italic;
+            text-align: center;
+            border: 1px dashed #D4A373;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 12px;
+            background: rgba(200, 213, 185, 0.9);
+            color: #2F2F2F;
+            border: 2px solid #D4A373;
+            border-radius: 10px 0 0 10px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #F4C7C3;
+            transform: scale(1.02);
+        }
+
+        .send-button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #F4C7C3 0%, #C8D5B9 100%);
+            color: #2F2F2F;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .send-button:hover {
+            background: linear-gradient(135deg, #C8D5B9 0%, #F4C7C3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #D4A373 0%, #C8D5B9 100%);
+            color: #2F2F2F;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #C8D5B9 0%, #D4A373 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .rating {
+            margin-top: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .rating span {
+            cursor: pointer;
+            font-size: 20px;
+            color: #D4A373;
+            transition: all 0.3s ease;
+        }
+
+        .rating span:hover,
+        .rating span.active {
+            color: #F4C7C3;
+            transform: scale(1.2);
+        }
+
+        /* Select Page */
+        .select-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        .select-body h1 {
+            font-size: clamp(28px, 5vw, 36px);
+            margin-bottom: 20px;
+            color: #D4A373;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-body p {
+            font-size: 18px;
+            color: #2F2F2F;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .category-selector {
+            margin-bottom: 30px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid #D4A373;
+            background: rgba(200, 213, 185, 0.9);
+            color: #2F2F2F;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .category-selector:focus {
+            outline: none;
+            border-color: #F4C7C3;
+            transform: scale(1.02);
+        }
+
+        .card-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 40px;
+            position: relative;
+            perspective: 1500px;
+        }
+
+        .card {
+            width: 130px;
+            height: 200px;
+            background: #C8D5B9;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            background-image: url('{{ url_for("static", filename="images/inkcy_tarot.jpg") }}');
+        }
+
+        .card.loaded {
+            background-image: url('{{ url_for("static", filename="images/") }}{{ card|lower|replace(" ", "_") }}.png');
+        }
+
+        .card:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.selected {
+            animation: flipAndGlow 0.8s forwards;
+            box-shadow: 0 0 25px rgba(244, 199, 195, 0.8);
+        }
+
+        .card.shuffle {
+            animation: shuffle 1.5s forwards;
+        }
+
+        .card.cut {
+            animation: cut 1.5s forwards;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Loading Page */
+        .loading-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .loading-body h1 {
+            font-size: clamp(24px, 5vw, 32px);
+            color: #D4A373;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            background: #F4C7C3;
+            border-radius: 50%;
+            margin: 0 8px;
+            animation: bounce 1.6s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        /* Prediction Page */
+        .prediction-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        .prediction-container {
+            background: rgba(200, 213, 185, 0.3);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1000px;
+            border: 2px solid #D4A373;
+        }
+
+        .prediction-container img {
+            width: 180px;
+            height: auto;
+            margin-right: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .prediction-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .prediction-content {
+            flex-grow: 1;
+            color: #2F2F2F;
+        }
+
+        .prediction-content h2 {
+            font-size: clamp(22px, 5vw, 28px);
+            margin-bottom: 20px;
+            color: #D4A373;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .review-form {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .review-form textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #D4A373;
+            font-size: 16px;
+            resize: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: rgba(200, 213, 185, 0.9);
+            color: #2F2F2F;
+        }
+
+        .review-form .star-rating {
+            margin-top: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .review-form .star-rating span {
+            cursor: pointer;
+            font-size: 24px;
+            color: #D4A373;
+            transition: all 0.3s ease;
+        }
+
+        .review-form .star-rating span:hover,
+        .review-form .star-rating span.active {
+            color: #F4C7C3;
+            transform: scale(1.2);
+        }
+
+        /* Article Page */
+        .article-body {
+            width: 100%;
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        .article-body h1 {
+            font-size: clamp(28px, 5vw, 36px);
+            color: #D4A373;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card-item {
+            background: rgba(244, 199, 195, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-item h3 {
+            font-size: 20px;
+            color: #F4C7C3;
+            margin-bottom: 10px;
+        }
+
+        /* Animations */
+        @keyframes floatAndRotate {
+            0% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-40px) rotate(10deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-30px) rotate(-10deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        @keyframes glowPulse {
+            from { opacity: 0.6; text-shadow: 0 0 10px rgba(244, 199, 195, 0.3); }
+            to { opacity: 0.8; text-shadow: 0 0 20px rgba(244, 199, 195, 0.6); }
+        }
+
+        @keyframes flipAndGlow {
+            0% { transform: scaleX(1); box-shadow: 0 0 0 rgba(244, 199, 195, 0); }
+            50% { transform: scaleX(0); box-shadow: 0 0 15px rgba(244, 199, 195, 0.5); }
+            100% { transform: scaleX(1); box-shadow: 0 0 25px rgba(244, 199, 195, 0.8); }
+        }
+
+        @keyframes shuffle {
+            0% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(30px) rotate(8deg); }
+            50% { transform: translateX(-30px) rotate(-8deg); }
+            75% { transform: translateX(20px) rotate(5deg); }
+            100% { transform: translateX(0) rotate(0deg); }
+        }
+
+        @keyframes cut {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Sentiment Classes */
+        .sentiment-positive { color: #C8D5B9; font-weight: bold; }
+        .sentiment-negative { color: #D4A373; font-weight: bold; }
+        .sentiment-neutral { color: #2F2F2F; font-weight: bold; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 20px;
+            }
+
+            .navbar .logo {
+                font-size: 22px;
+            }
+
+            .navbar-nav a {
+                font-size: 14px;
+                margin: 0 10px;
+            }
+
+            .main-content h1 {
+                font-size: clamp(40px, 8vw, 60px);
+                letter-spacing: 6px;
+            }
+
+            .chat-input-container,
+            .chat-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .chat-input,
+            .start-button,
+            .send-button {
+                width: 100%;
+                border-radius: 25px;
+                margin-bottom: 15px;
+            }
+
+            .random-button {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .description,
+            .info-section {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .category-card {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .floating-card {
+                width: 80px;
+                height: 120px;
+            }
+
+            .chat-sidebar {
+                width: 100%;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 2px solid #D4A373;
+            }
+
+            .chat-content {
+                padding-left: 0;
+                padding-top: 20px;
+            }
+
+            .chat-container {
+                height: 65vh;
+                padding: 15px;
+            }
+
+            .card {
+                width: 100px;
+                height: 150px;
+            }
+
+            .prediction-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+            }
+
+            .prediction-container img {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .prediction-content h2 {
+                font-size: clamp(18px, 4vw, 22px);
+            }
+
+            .prediction-content p {
+                font-size: 14px;
+            }
+
+            .card-item {
+                padding: 15px;
+            }
+
+            .card-item h3 {
+                font-size: 18px;
+            }
+
+            .card-item p {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% if page == 'home' %}
+        <div class="home-body">
+            <nav class="navbar" role="navigation" aria-label="เมนูหลัก">
+                <div class="logo">Tarot AI</div>
+                <div class="navbar-nav">
+                    <a href="{{ url_for('home') }}" aria-current="{% if page == 'home' %}page{% endif %}">หน้าแรก</a>
+                    <a href="{{ url_for('chat') }}" aria-current="{% if page == 'chat' %}page{% endif %}">แชท</a>
+                    <a href="{{ url_for('article') }}" aria-current="{% if page == 'article' %}page{% endif %}">บทความ</a>
+                    <a href="/about">เกี่ยวกับ</a>
+                </div>
+            </nav>
+            <div class="floating-cards" aria-hidden="true">
+                <div class="floating-card"></div>
+                <div class="floating-card"></div>
+                <div class="floating-card"></div>
+                <div class="floating-card"></div>
+            </div>
+            <section class="main-content container">
+                <h1>Tarot AI</h1>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="ถามคำถามเกี่ยวกับดวงของคุณ..." aria-label="พิมพ์คำถามเพื่อทำนายดวง" required>
+                    <button class="start-button" onclick="startChat()">เริ่มทำนาย</button>
+                </div>
+                <button class="random-button" onclick="randomPrediction()">สุ่มคำทำนาย</button>
+                <div class="categories">
+                    <button class="category-card" onclick="startChatWithCategory('ความรัก')">ความรัก</button>
+                    <button class="category-card" onclick="startChatWithCategory('การงาน')">การงาน</button>
+                    <button class="category-card" onclick="startChatWithCategory('การเรียน')">การเรียน</button>
+                    <button class="category-card" onclick="startChatWithCategory('โชคลาภ')">โชคลาภ</button>
+                    <button class="category-card" onclick="startChatWithCategory('การเงิน')">การเงิน</button>
+                    <button class="category-card" onclick="startChatWithCategory('สุขภาพ')">สุขภาพ</button>
+                </div>
+                <p class="description">
+                    ยินดีต้อนรับสู่ <strong>Tarot AI</strong>! ระบบทำนายไพ่ทาโรต์อัจฉริยะที่ใช้ AI ช่วยวิเคราะห์คำถามของคุณและให้คำทำนายที่แม่นยำเกี่ยวกับทุกมิติของชีวิต ไม่ว่าจะเป็นความรัก การงาน การเรียน โชคลาภ การเงิน หรือสุขภาพ
+                </p>
+                <div class="info-section">
+                    <h3>เกี่ยวกับ Tarot AI</h3>
+                    <p>Tarot AI ถูกพัฒนาขึ้นเพื่อให้คุณเข้าถึงคำทำนายไพ่ทาโรต์ได้ง่าย ๆ ด้วยชุดไพ่ Major Arcana ทั้ง 22 ใบ ที่ครอบคลุมทุกแง่มุมของชีวิต</p>
+                    <p>เพียงพิมพ์คำถามหรือเลือกหมวดหมู่ที่สนใจ แล้วปล่อยให้ AI ช่วยคุณค้นหาคำตอบจากไพ่ทาโรต์!</p>
+                </div>
+                <div class="links">
+                    <a href="/learn">เรียนรู้เพิ่มเติม</a>
+                    <a href="/build">เริ่มใช้งาน</a>
+                    <a href="{{ url_for('article') }}">อ่านบทความไพ่</a>
+                </div>
+            </section>
+        </div>
+        <script>
+            function startChat() {
+                const message = document.getElementById('chatInput').value.trim();
+                if (message) {
+                    window.location.href = `/chat?message=${encodeURIComponent(message)}`;
+                } else {
+                    alert("กรุณาพิมพ์คำถามก่อนเริ่มทำนายค่ะ");
+                }
+            }
+
+            function startChatWithCategory(category) {
+                const message = `ดูดวง${category}`;
+                window.location.href = `/chat?message=${encodeURIComponent(message)}`;
+            }
+
+            function randomPrediction() {
+                const categories = ["ความรัก", "การงาน", "การเรียน", "โชคลาภ", "การเงิน", "สุขภาพ"];
+                const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+                const message = `ดูดวง${randomCategory}`;
+                window.location.href = `/chat?message=${encodeURIComponent(message)}`;
+            }
+        </script>
+    {% elif page == 'chat' %}
+        <div class="chat-body">
+            <aside class="chat-sidebar" aria-label="ประวัติการแชท">
+                <button class="new-chat" onclick="newChat()">สร้างแชทใหม่</button>
+                <h3>วันนี้</h3>
+                <ul id="todayChats"></ul>
+                <h3>เมื่อวาน</h3>
+                <ul id="yesterdayChats"></ul>
+                <h3>7 วันล่าสุด</h3>
+                <ul id="last7DaysChats"></ul>
+            </aside>
+            <section class="chat-content">
+                <h1>ยินดีต้อนรับสู่ Tarot AI</h1>
+                <div class="chat-container">
+                    <div class="chat-history" id="chatHistory" role="log" aria-live="polite">
+                        <div class="chat-message ai-prediction">สวัสดี! ฉันคือ Tarot AI พร้อมช่วยคุณทำนาย พิมพ์คำถามของคุณด้านล่างเลยค่ะ</div>
+                    </div>
+                    <form class="chat-form" id="chatForm" onsubmit="return false;">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="พิมพ์คำถามของคุณที่นี่..." required aria-label="พิมพ์คำถามเพื่อทำนาย">
+                        <button type="submit" class="send-button">ส่ง</button>
+                    </form>
+                    <div class="chat-actions">
+                        <button class="action-btn" onclick="goHome()">กลับไปหน้าแรก</button>
+                        <button class="action-btn" onclick="goToSelect()">เลือกไพ่</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <script>
+            const chatForm = document.getElementById('chatForm');
+            const chatInput = document.getElementById('chatInput');
+            const chatHistory = document.getElementById('chatHistory');
+            const todayChats = document.getElementById('todayChats');
+            const yesterdayChats = document.getElementById('yesterdayChats');
+            const last7DaysChats = document.getElementById('last7DaysChats');
+            let relationshipStatus = null;
+            let isAwaitingRelationshipStatus = false;
+            let originalMessage = null;
+            let currentChatId = null;
+            let currentChatMessages = [];
+
+            function goToSelect() {
+                const message = chatInput.value.trim() || originalMessage || "ดูดวงทั่วไป";
+                window.location.href = `/select?message=${encodeURIComponent(message)}&relationship_status=${relationshipStatus || ''}`;
+            }
+
+            function goHome() {
+                window.location.href = '/';
+            }
+
+            function loadChatHistory() {
+                const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+                return history.map(item => ({
+                    ...item,
+                    timestamp: new Date(item.timestamp)
+                }));
+            }
+
+            function saveChatHistory() {
+                const history = loadChatHistory();
+                const chatIndex = history.findIndex(c => c.id === currentChatId);
+                const newChat = {
+                    id: currentChatId || Date.now(),
+                    messages: currentChatMessages,
+                    rating: history[chatIndex]?.rating || 0,
+                    timestamp: new Date().toLocaleString()
+                };
+                if (chatIndex >= 0) {
+                    history[chatIndex] = newChat;
+                } else {
+                    history.push(newChat);
+                }
+                localStorage.setItem('chatHistory', JSON.stringify(history));
+                currentChatId = newChat.id;
+                updateChatSidebar();
+            }
+
+            function updateChatSidebar() {
+                const history = loadChatHistory();
+                [todayChats, yesterdayChats, last7DaysChats].forEach(el => el.innerHTML = '');
+
+                const now = new Date();
+                const yesterday = new Date(now);
+                yesterday.setDate(now.getDate() - 1);
+                const last7Days = new Date(now);
+                last7Days.setDate(now.getDate() - 7);
+
+                history.forEach(chat => {
+                    const chatDate = new Date(chat.timestamp);
+                    const li = document.createElement('li');
+                    const firstMessage = chat.messages.find(m => m.type === 'user')?.content || 'แชทใหม่';
+                    li.innerHTML = `${firstMessage} ${chat.rating > 0 ? `(${chat.rating}/5)` : ''} <span class="delete-btn" onclick="deleteChat(${chat.id}); event.stopPropagation();">ลบ</span>`;
+                    li.onclick = () => loadChat(chat.id);
+                    if (chatDate.toDateString() === now.toDateString()) todayChats.appendChild(li);
+                    else if (chatDate.toDateString() === yesterday.toDateString()) yesterdayChats.appendChild(li);
+                    else if (chatDate >= last7Days) last7DaysChats.appendChild(li);
+                });
+            }
+
+            function deleteChat(chatId) {
+                if (confirm('ยืนยันการลบแชท?')) {
+                    const history = loadChatHistory();
+                    const newHistory = history.filter(c => c.id !== chatId);
+                    localStorage.setItem('chatHistory', JSON.stringify(newHistory));
+                    if (currentChatId === chatId) newChat();
+                    updateChatSidebar();
+                }
+            }
+
+            function loadChat(chatId) {
+                const history = loadChatHistory();
+                const chat = history.find(c => c.id === chatId);
+                if (chat) {
+                    currentChatId = chatId;
+                    currentChatMessages = chat.messages;
+                    chatHistory.innerHTML = '';
+                    chat.messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `chat-message ${msg.type}`;
+                        if (msg.type === 'ai-prediction') {
+                            const img = document.createElement('img');
+                            img.src = msg.cardImage || '{{ url_for("static", filename="images/default_card.png") }}';
+                            img.alt = msg.card || 'ไพ่';
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'prediction-content';
+                            contentDiv.innerHTML = msg.content || 'ไม่มีคำทำนาย';
+                            div.appendChild(img);
+                            div.appendChild(contentDiv);
+                            const likeBtn = document.createElement('span');
+                            likeBtn.className = 'like-btn';
+                            likeBtn.innerHTML = '❤️';
+                            likeBtn.onclick = () => toggleLike(likeBtn, chatId, msg.messageId);
+                            if (msg.liked) likeBtn.classList.add('liked');
+                            div.appendChild(likeBtn);
+                            if (msg.rating !== undefined) {
+                                const ratingDiv = document.createElement('div');
+                                ratingDiv.className = 'rating';
+                                for (let i = 1; i <= 5; i++) {
+                                    const star = document.createElement('span');
+                                    star.innerHTML = '★';
+                                    if (i <= msg.rating) star.classList.add('active');
+                                    star.onclick = () => ratePrediction(chatId, msg.messageId, i);
+                                    ratingDiv.appendChild(star);
+                                }
+                                div.appendChild(ratingDiv);
+                            }
+                        } else {
+                            div.textContent = msg.content || '';
+                        }
+                        chatHistory.appendChild(div);
+                    });
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+            }
+
+            function addMessageToChat(type, content, card = null, cardImage = null, sentiment = null) {
+                const message = { type, content, card, cardImage, messageId: Date.now(), liked: false, sentiment };
+                currentChatMessages.push(message);
+                saveChatHistory();
+                return message;
+            }
+
+            function toggleLike(likeBtn, chatId, messageId) {
+                const history = loadChatHistory();
+                const chat = history.find(c => c.id === chatId);
+                if (chat) {
+                    const message = chat.messages.find(m => m.messageId === messageId);
+                    if (message) {
+                        message.liked = !message.liked;
+                        likeBtn.classList.toggle('liked');
+                        localStorage.setItem('chatHistory', JSON.stringify(history));
+                    }
+                }
+            }
+
+            function ratePrediction(chatId, messageId, rating) {
+                const history = loadChatHistory();
+                const chat = history.find(c => c.id === chatId);
+                if (chat) {
+                    const message = chat.messages.find(m => m.messageId === messageId);
+                    if (message) {
+                        message.rating = rating;
+                        chat.rating = Math.round(chat.messages
+                            .filter(m => m.rating !== undefined)
+                            .reduce((sum, m) => sum + m.rating, 0) /
+                            chat.messages.filter(m => m.rating !== undefined).length || 0);
+                        fetch('/rate_prediction', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ chatId, messageId, rating })
+                        }).then(() => {
+                            localStorage.setItem('chatHistory', JSON.stringify(history));
+                            loadChat(chatId);
+                            updateChatSidebar();
+                        });
+                    }
+                }
+            }
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (!message) {
+                    alert('กรุณาพิมพ์คำถามก่อนส่ง');
+                    return;
+                }
+
+                const userMessage = document.createElement('div');
+                userMessage.className = 'chat-message user';
+                userMessage.textContent = message;
+                chatHistory.appendChild(userMessage);
+                addMessageToChat('user', message);
+                chatInput.value = '';
+
+                const loveKeywords = ["รัก", "ความรัก", "แฟน", "คนรัก", "คู่", "โสด", "ความสัมพันธ์"];
+                const isLoveQuestion = loveKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+                const explanationKeywords = ["รู้ได้ยังไง", "รู้ได้ไง", "หมายถึง", "คืออะไร", "แปลว่า"];
+                const isExplanationRequest = explanationKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+                if (isLoveQuestion && relationshipStatus === null && !isAwaitingRelationshipStatus) {
+                    isAwaitingRelationshipStatus = true;
+                    originalMessage = message;
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'chat-message ai-explanation';
+                    aiMessage.textContent = "คุณโสดหรือมีคู่แล้วคะ? (ตอบ 'โสด' หรือ 'มีคู่' ค่ะ)";
+                    chatHistory.appendChild(aiMessage);
+                    addMessageToChat('ai-explanation', aiMessage.textContent);
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                } else if (isAwaitingRelationshipStatus) {
+                    const statusMessage = message.toLowerCase();
+                    if (statusMessage.includes("โสด")) relationshipStatus = "single";
+                    else if (statusMessage.includes("มีคู่") || statusMessage.includes("มีแฟน") || statusMessage.includes("ไม่โสด")) relationshipStatus = "in_relationship";
+                    else {
+                        const errorMessage = document.createElement('div');
+                        errorMessage.className = 'chat-message ai-explanation';
+                        errorMessage.textContent = "กรุณาตอบ 'โสด' หรือ 'มีคู่' ค่ะ";
+                        chatHistory.appendChild(errorMessage);
+                        addMessageToChat('ai-explanation', errorMessage.textContent);
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                        return;
+                    }
+                    isAwaitingRelationshipStatus = false;
+                    goToSelect();
+                } else if (isExplanationRequest) {
+                    await fetchPrediction(message, relationshipStatus, true);
+                } else {
+                    goToSelect();
+                }
+            });
+
+            async function fetchPrediction(message, relationshipStatus, isExplanation = false, card = null) {
+                try {
+                    const response = await fetch('/get_prediction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message,
+                            relationship_status: relationshipStatus,
+                            is_explanation: isExplanation,
+                            card
+                        })
+                    });
+                    if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+                    const data = await response.json();
+
+                    if (data.error) {
+                        const aiMessage = document.createElement('div');
+                        aiMessage.className = 'chat-message ai-explanation';
+                        aiMessage.textContent = `เกิดข้อผิดพลาด: ${data.error}`;
+                        chatHistory.appendChild(aiMessage);
+                        addMessageToChat('ai-explanation', aiMessage.textContent);
+                    } else {
+                        const categoryTranslations = {
+                            "love_single": "ความรัก (คนโสด)",
+                            "love_in_relationship": "ความรัก (คนมีคู่)",
+                            "career": "การงาน",
+                            "finance": "การเงิน",
+                            "health": "สุขภาพ",
+                            "personality": "บุคลิกภาพ",
+                            "education": "การเรียน",
+                            "luck": "โชคลาภ",
+                            "general": "ทั่วไป"
+                        };
+                        const categoryDisplay = categoryTranslations[data.category] || data.category;
+
+                        let dateMention = '';
+                        const dateMatch = message.match(/วันที่\s*(\d+)/) || message.match(/(วันนี้|พรุ่งนี้)/);
+                        if (dateMatch) {
+                            const day = dateMatch[1] === "วันนี้" ? "วันนี้" : dateMatch[1] === "พรุ่งนี้" ? "พรุ่งนี้" : `วันที่ ${dateMatch[1]}`;
+                            dateMention = `สำหรับ${day} ขอแนะนำให้คุณเตรียมตัวให้พร้อมและมีสมาธิกับสิ่งที่ต้องทำ`;
+                            if (data.category === 'education') dateMention += ' โดยเฉพาะการสอบ อย่าลืมทบทวนบทเรียนให้ดีค่ะ';
+                            dateMention += '<br>';
+                        }
+
+                        const aiMessage = document.createElement('div');
+                        aiMessage.className = data.is_explanation ? 'chat-message ai-explanation' : 'chat-message ai-prediction';
+                        if (!data.is_explanation) {
+                            const cardImage = document.createElement('img');
+                            cardImage.src = `/static/images/${data.card.toLowerCase().replace(/ /g, '_')}.png`;
+                            cardImage.alt = data.card;
+                            cardImage.onerror = () => cardImage.src = '{{ url_for("static", filename="images/default_card.png") }}';
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'prediction-content';
+                            contentDiv.innerHTML = `
+                                <h4>ไพ่: ${data.card} - หมวดหมู่: ${categoryDisplay}</h4>
+                                <p><strong>อารมณ์ของคุณ:</strong> <span class="sentiment-${data.sentiment}">${data.sentiment || 'ไม่สามารถวิเคราะห์ได้'}</span></p>
+                                ${dateMention}
+                                <p><strong>คำทำนาย:</strong> ${data.prediction}</p>
+                            `;
+                            aiMessage.appendChild(cardImage);
+                            aiMessage.appendChild(contentDiv);
+                            const likeBtn = document.createElement('span');
+                            likeBtn.className = 'like-btn';
+                            likeBtn.innerHTML = '❤️';
+                            likeBtn.onclick = () => toggleLike(likeBtn, currentChatId, aiMessage.dataset.messageId);
+                            aiMessage.appendChild(likeBtn);
+                            const ratingDiv = document.createElement('div');
+                            ratingDiv.className = 'rating';
+                            for (let i = 1; i <= 5; i++) {
+                                const star = document.createElement('span');
+                                star.innerHTML = '★';
+                                star.onclick = () => ratePrediction(currentChatId, aiMessage.dataset.messageId, i);
+                                ratingDiv.appendChild(star);
+                            }
+                            aiMessage.appendChild(ratingDiv);
+                            aiMessage.dataset.messageId = Date.now();
+                            addMessageToChat('ai-prediction', contentDiv.innerHTML, data.card, cardImage.src, data.sentiment);
+                            setTimeout(() => window.location.href = `/prediction?message=${encodeURIComponent(message)}&relationship_status=${encodeURIComponent(relationshipStatus || '')}&card=${encodeURIComponent(data.card)}&sentiment=${encodeURIComponent(data.sentiment || '')}`, 500);
+                        } else {
+                            aiMessage.textContent = `คำอธิบาย: ${data.prediction}`;
+                            addMessageToChat('ai-explanation', aiMessage.textContent);
+                            chatHistory.appendChild(aiMessage);
+                        }
+                    }
+                } catch (error) {
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'chat-message ai-explanation';
+                    aiMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    chatHistory.appendChild(aiMessage);
+                    addMessageToChat('ai-explanation', aiMessage.textContent);
+                }
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialMessage = urlParams.get('message');
+            if (initialMessage) {
+                currentChatMessages = [];
+                const userMessage = document.createElement('div');
+                userMessage.className = 'chat-message user';
+                userMessage.textContent = initialMessage;
+                chatHistory.appendChild(userMessage);
+                addMessageToChat('user', initialMessage);
+                fetchPrediction(initialMessage, relationshipStatus);
+            }
+
+            function newChat() {
+                relationshipStatus = null;
+                isAwaitingRelationshipStatus = false;
+                originalMessage = null;
+                currentChatId = null;
+                currentChatMessages = [];
+                chatHistory.innerHTML = '<div class="chat-message ai-prediction">สวัสดี! ฉันคือ Tarot AI พร้อมช่วยคุณทำนาย พิมพ์คำถามของคุณด้านล่างเลยค่ะ</div>';
+                addMessageToChat('ai-prediction', 'สวัสดี! ฉันคือ Tarot AI พร้อมช่วยคุณทำนาย พิมพ์คำถามของคุณด้านล่างเลยค่ะ');
+                saveChatHistory();
+                updateChatSidebar();
+            }
+
+            window.onload = () => {
+                updateChatSidebar();
+                if (initialMessage) fetchPrediction(initialMessage, relationshipStatus);
+            };
+        </script>
+    {% elif page == 'select' %}
+        <div class="select-body">
+            <h1>เลือกไพ่ของคุณ</h1>
+            <p>เลือกหมวดหมู่และไพ่เพื่อทำนายดวงของคุณ</p>
+            <select class="category-selector" id="categorySelector" onchange="updateCategory()" aria-label="เลือกหมวดหมู่เพื่อทำนาย">
+                <option value="" disabled selected>เลือกหมวดหมู่</option>
+                <optgroup label="ความรัก">
+                    <option value="love_single">คนโสด</option>
+                    <option value="love_in_relationship">คนมีคู่</option>
+                </optgroup>
+                <optgroup label="อื่น ๆ">
+                    <option value="career">การงาน</option>
+                    <option value="education">การเรียน</option>
+                    <option value="luck">โชคลาภ</option>
+                    <option value="finance">การเงิน</option>
+                    <option value="health">สุขภาพ</option>
+                </optgroup>
+            </select>
+            <div class="card-stack" id="cardStack" role="list" aria-label="เลือกไพ่ทาโรต์"></div>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="shuffleCards()">สับไพ่</button>
+                <button class="action-btn" onclick="cutCards()">ตัดไพ่</button>
+                <button class="action-btn" onclick="selectCard()" id="selectButton" disabled>เลือกไพ่</button>
+            </div>
+        </div>
+        <script>
+            const majorArcana = [
+                "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
+                "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
+                "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
+                "The Devil", "The Tower", "The Star", "The Moon", "The Sun",
+                "Judgement", "The World"
+            ];
+            let cards = [...majorArcana];
+            let selectedCard = null;
+            let selectedCategory = null;
+
+            function updateCategory() {
+                const categorySelector = document.getElementById('categorySelector');
+                selectedCategory = categorySelector.value;
+                const selectButton = document.getElementById('selectButton');
+                selectButton.disabled = !selectedCategory;
+                renderCards();
+            }
+
+            function shuffleCards() {
+                for (let i = cards.length - 1; i > 0; i--) {
+                    let j = Math.floor(Math.random() * (i + 1));
+                    [cards[i], cards[j]] = [cards[j], cards[i]];
+                }
+                renderCards();
+                const cardElements = document.querySelectorAll('.card');
+                cardElements.forEach(el => el.classList.add('shuffle'));
+                setTimeout(() => cardElements.forEach(el => el.classList.remove('shuffle')), 1500);
+            }
+
+            function cutCards() {
+                const cutIndex = Math.floor(Math.random() * cards.length);
+                cards = [...cards.slice(cutIndex), ...cards.slice(0, cutIndex)];
+                renderCards();
+                const cardElements = document.querySelectorAll('.card');
+                cardElements.forEach(el => el.classList.add('cut'));
+                setTimeout(() => cardElements.forEach(el => el.classList.remove('cut')), 1500);
+            }
+
+            function renderCards() {
+                const cardStack = document.getElementById('cardStack');
+                cardStack.innerHTML = '';
+                cards.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.dataset.cardName = card;
+                    cardElement.setAttribute('role', 'listitem');
+                    cardElement.setAttribute('aria-label', `ไพ่ ${card}`);
+                    cardElement.style.backgroundImage = `url('{{ url_for("static", filename="images/inkcy_tarot.jpg") }}')`;
+                    cardElement.onclick = () => selectCardManually(card);
+                    cardStack.appendChild(cardElement);
+                });
+            }
+
+            function selectCardManually(card) {
+                if (!selectedCategory) {
+                    alert("กรุณาเลือกหมวดหมู่ก่อนค่ะ");
+                    return;
+                }
+                selectedCard = card;
+                const cardElements = document.querySelectorAll('.card');
+                cardElements.forEach(el => {
+                    if (el.dataset.cardName === card) {
+                        el.classList.add('selected');
+                        el.classList.add('loaded');
+                        el.style.backgroundImage = `url('{{ url_for("static", filename="images/") }}${card.toLowerCase().replace(/ /g, '_')}.png')`;
+                        el.onerror = () => el.style.backgroundImage = `url('{{ url_for("static", filename="images/default_card.png") }}')`;
+                    }
+                });
+                setTimeout(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const message = urlParams.get('message') || `ดูดวง${selectedCategory}`;
+                    const relationshipStatus = selectedCategory === 'love_single' ? 'single' : selectedCategory === 'love_in_relationship' ? 'in_relationship' : '';
+                    window.location.href = `/loading?message=${encodeURIComponent(message)}&relationship_status=${encodeURIComponent(relationshipStatus)}&card=${encodeURIComponent(card)}&category=${encodeURIComponent(selectedCategory)}`;
+                }, 800);
+            }
+
+            function selectCard() {
+                if (!selectedCategory) {
+                    alert("กรุณาเลือกหมวดหมู่ก่อนค่ะ");
+                    return;
+                }
+                if (!selectedCard) selectedCard = cards[Math.floor(Math.random() * cards.length)];
+                const cardElements = document.querySelectorAll('.card');
+                cardElements.forEach(el => {
+                    if (el.dataset.cardName === selectedCard) {
+                        el.classList.add('selected');
+                        el.classList.add('loaded');
+                        el.style.backgroundImage = `url('{{ url_for("static", filename="images/") }}${selectedCard.toLowerCase().replace(/ /g, '_')}.png')`;
+                        el.onerror = () => el.style.backgroundImage = `url('{{ url_for("static", filename="images/default_card.png") }}')`;
+                    }
+                });
+                setTimeout(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const message = urlParams.get('message') || `ดูดวง${selectedCategory}`;
+                    const relationshipStatus = selectedCategory === 'love_single' ? 'single' : selectedCategory === 'love_in_relationship' ? 'in_relationship' : '';
+                    window.location.href = `/loading?message=${encodeURIComponent(message)}&relationship_status=${encodeURIComponent(relationshipStatus)}&card=${encodeURIComponent(selectedCard)}&category=${encodeURIComponent(selectedCategory)}`;
+                }, 800);
+            }
+
+            window.onload = () => {
+                renderCards();
+                const urlParams = new URLSearchParams(window.location.search);
+                const category = urlParams.get('category');
+                if (category) {
+                    document.getElementById('categorySelector').value = category;
+                    selectedCategory = category;
+                    document.getElementById('selectButton').disabled = false;
+                }
+            };
+        </script>
+    {% elif page == 'loading' %}
+        <div class="loading-body">
+            <h1>กำลังประมวลผลคำทำนาย...</h1>
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        <script>
+            window.onload = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const message = urlParams.get('message');
+                const relationshipStatus = urlParams.get('relationship_status');
+                const card = urlParams.get('card');
+                const category = urlParams.get('category');
+                setTimeout(() => {
+                    window.location.href = `/prediction?message=${encodeURIComponent(message)}&relationship_status=${encodeURIComponent(relationshipStatus)}&card=${encodeURIComponent(card)}&category=${encodeURIComponent(category)}`;
+                }, 2000);
+            };
+        </script>
+    {% elif page == 'prediction' %}
+        <div class="prediction-body">
+            <div class="prediction-container">
+                <img src="{{ url_for('static', filename='images/' + card|lower|replace(' ', '_') + '.png') }}" alt="{{ card }}" onerror="this.src='{{ url_for('static', filename='images/default_card.png') }}'" loading="lazy">
+                <div class="prediction-content">
+                    <h2>คำทำนายจากไพ่ {{ card }}</h2>
+                    <p><strong>หมวดหมู่:</strong> {{ category_translations[category] or category }}</p>
+                    <p><strong>อารมณ์ของคุณ:</strong> <span class="sentiment-{{ sentiment | default('neutral') }}">{{ sentiment | default('ไม่สามารถวิเคราะห์ได้') }}</span></p>
+                    <p>{{ date_mention | safe }}</p>
+                    <p><strong>คำทำนาย:</strong> {{ prediction }}</p>
+                    <p style="color: #F4C7C3; font-style: italic;">ขอให้โชคดี ดูแลตัวเองด้วยนะคะ</p>
+                </div>
+            </div>
+            <div class="prediction-actions">
+                <button class="action-btn" onclick="goBackToChat()">กลับไปแชทใหม่</button>
+                <button class="action-btn" onclick="showReviewForm()">รีวิวคำทำนาย</button>
+                <button class="action-btn" onclick="goHome()">กลับไปหน้าแรก</button>
+            </div>
+            <div class="review-form" id="reviewForm" style="display: none;">
+                <textarea id="reviewText" placeholder="พิมพ์รีวิวของคุณที่นี่..." aria-label="เขียนรีวิวคำทำนาย"></textarea>
+                <div class="star-rating" id="starRating" role="radiogroup" aria-label="ให้คะแนนคำทำนาย"></div>
+                <button class="action-btn" onclick="submitReview()">ส่งรีวิว</button>
+            </div>
+        </div>
+        <script>
+            function goBackToChat() {
+                window.location.href = '/chat';
+            }
+
+            function goHome() {
+                window.location.href = '/';
+            }
+
+            function showReviewForm() {
+                const reviewForm = document.getElementById('reviewForm');
+                reviewForm.style.display = 'block';
+                const starRating = document.getElementById('starRating');
+                starRating.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('span');
+                    star.innerHTML = '★';
+                    star.setAttribute('role', 'radio');
+                    star.setAttribute('aria-checked', 'false');
+                    star.setAttribute('tabindex', '0');
+                    star.onclick = () => {
+                        const stars = starRating.getElementsByTagName('span');
+                        for (let j = 0; j < stars.length; j++) {
+                            if (j < i) {
+                                stars[j].classList.add('active');
+                                stars[j].setAttribute('aria-checked', 'true');
+                            } else {
+                                stars[j].classList.remove('active');
+                                stars[j].setAttribute('aria-checked', 'false');
+                            }
+                        }
+                    };
+                    star.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') star.click();
+                    };
+                    starRating.appendChild(star);
+                }
+            }
+
+            async function submitReview() {
+                const reviewText = document.getElementById('reviewText').value.trim();
+                const starRating = document.getElementById('starRating');
+                const stars = starRating.getElementsByTagName('span');
+                let rating = 0;
+                for (let i = 0; i < stars.length; i++) {
+                    if (stars[i].classList.contains('active')) rating++;
+                }
+
+                if (reviewText || rating > 0) {
+                    try {
+                        const response = await fetch('/submit_review', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ review: reviewText, rating })
+                        });
+                        if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการส่งรีวิว');
+                        alert('ขอบคุณสำหรับรีวิวของคุณ!');
+                        document.getElementById('reviewForm').style.display = 'none';
+                        document.getElementById('reviewText').value = '';
+                        const stars = document.getElementById('starRating').getElementsByTagName('span');
+                        for (let star of stars) star.classList.remove('active');
+                    } catch (error) {
+                        alert(`เกิดข้อผิดพลาด: ${error.message}`);
+                    }
+                } else {
+                    alert('กรุณาพิมพ์รีวิวหรือให้คะแนนดาวก่อนส่งค่ะ');
+                }
+            }
+        </script>
+    {% elif page == 'article' %}
+    <div class="article-body">
+        <h1>ความหมายของไพ่ Major Arcana</h1>
+        <div class="card-list">
+            {% for card in major_arcana %}
+                <article class="card-item">
+                    <img src="{{ url_for('static', filename='images/' + card|lower|replace(' ', '_') + '.png') }}" alt="{{ card }}" onerror="this.src='{{ url_for('static', filename='images/default_card.png') }}'" loading="lazy">
+                    <h3>{{ card }}</h3>
+                    <p><strong>ความหมายทั่วไป:</strong> {{ {
+                        'The Fool': 'การเริ่มต้นใหม่, การเดินทางที่เต็มไปด้วยความตื่นเต้นและความไม่แน่นอน, ความไร้เดียงสา',
+                        'The Magician': 'พลังแห่งการสร้างสรรค์, ความสามารถในการควบคุมสถานการณ์, การใช้ความสามารถและไหวพริบ',
+                        'The High Priestess': 'การรับรู้, สัญชาตญาณ, ความลับ, ความรู้ที่อยู่ภายใน, การรอคอยสิ่งที่ยังไม่เปิดเผย',
+                        'The Empress': 'ความอุดมสมบูรณ์, ความรัก, การเจริญเติบโต, การสร้างความมั่นคง',
+                        'The Emperor': 'ความมั่นคง, ความแข็งแกร่ง, การควบคุม, การปกครอง',
+                        'The Hierophant': 'การศึกษา, ความเชื่อ, การเรียนรู้จากประเพณี, ความศรัทธา',
+                        'The Lovers': 'การตัดสินใจ, ความรัก, ความสัมพันธ์, ความเชื่อมโยงทางจิตใจ',
+                        'The Chariot': 'การควบคุม, ความตั้งใจ, การเคลื่อนไหวอย่างรวดเร็ว, ความมุ่งมั่น',
+                        'Strength': 'ความแข็งแกร่งทางจิตใจ, ความอดทน, ความกล้าหาญ, การควบคุมอารมณ์',
+                        'The Hermit': 'การแสวงหาคำตอบภายใน, การหลีกหนีจากความวุ่นวาย, การค้นหาความจริง',
+                        'Wheel of Fortune': 'การเปลี่ยนแปลง, โชคลาภ, ความไม่แน่นอน, การหมุนเวียนของชีวิต',
+                        'Justice': 'ความเป็นธรรม, การตัดสินที่ยุติธรรม, การรับผิดชอบต่อการกระทำ',
+                        'The Hanged Man': 'การมองโลกในมุมมองใหม่, การเสียสละ, ความอดทน, การหยุดนิ่ง',
+                        'Death': 'การเปลี่ยนแปลงที่สำคัญ, การสิ้นสุดและการเริ่มต้นใหม่, การล้างบาง',
+                        'Temperance': 'การหาสมดุล, ความสงบ, ความยืดหยุ่น, การปรับตัว',
+                        'The Devil': 'ความหลงใหล, ความผูกมัด, การเสพติด, ความอ่อนแอ',
+                        'The Tower': 'ความล้มเหลว, การเปลี่ยนแปลงที่รวดเร็ว, การพังทลาย, การเปิดเผยความจริง',
+                        'The Star': 'ความหวัง, การรักษา, การมองไปข้างหน้า, การสร้างอนาคต',
+                        'The Moon': 'ความลึกลับ, การหลอกลวง, สัญชาตญาณ, สิ่งที่ซ่อนอยู่',
+                        'The Sun': 'ความสุข, ความสำเร็จ, ความชัดเจน, การเปิดเผย, ความสดใส',
+                        'Judgement': 'การฟื้นฟู, การตัดสินใจที่สำคัญ, การเกิดใหม่, การไถ่บาป',
+                        'The World': 'การสำเร็จ, การบรรลุเป้าหมาย, ความสมบูรณ์, การเริ่มต้นรอบใหม่'
+                    }[card] }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html> 
